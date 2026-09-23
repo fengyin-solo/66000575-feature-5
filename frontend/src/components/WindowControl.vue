@@ -2,41 +2,32 @@
   <div class="panel">
     <h4>🎚️ 窗宽窗位调节</h4>
     <div class="preset-row">
-      <el-button v-for="(p, k) in presets" :key="k" size="small" @click="apply(k)" :type="active===k?'primary':''">{{ k }}</el-button>
+      <el-button v-for="(p, k) in presets" :key="k" size="small"
+        @click="store.selectWindowPreset(k)"
+        :type="store.activeWindow===k?'primary':''">
+        {{ labels[k] || k }}
+      </el-button>
+      <el-button size="small" @click="store.resetToPartPreset()" title="回到当前检查部位的默认窗方案">↩ 本部位</el-button>
     </div>
     <div class="slider-row">
       <span>窗宽: {{ store.windowVal }}</span>
-      <input type="range" :min="10" :max="3000" v-model.number="store.windowVal" @input="onChange"/>
+      <input type="range" :min="10" :max="3000" v-model.number="store.windowVal" @input="store.notifyManualWindow()"/>
     </div>
     <div class="slider-row">
       <span>窗位: {{ store.levelVal }}</span>
-      <input type="range" :min="-1000" :max="1000" v-model.number="store.levelVal" @input="onChange"/>
+      <input type="range" :min="-1000" :max="1000" v-model.number="store.levelVal" @input="store.notifyManualWindow()"/>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useImagingStore } from '../store/imaging'
+import { computed } from 'vue'
+import { useImagingStore, DEFAULT_WINDOW_PRESETS, PRESET_LABELS } from '../store/imaging'
 const store = useImagingStore()
-const active = ref('')
 
-const defaultPresets: Record<string, any> = {
-  lung: { window: 1500, level: -600 },
-  mediastinum: { window: 350, level: 50 },
-  bone: { window: 2000, level: 300 },
-  brain: { window: 80, level: 40 },
-  abdomen: { window: 400, level: 40 },
-}
+const labels = PRESET_LABELS
 
-const presets = computed(() => store.volumeData?.windowPresets || defaultPresets)
-
-function apply(k: string) {
-  active.value = k
-  const p = presets.value[k]
-  if (p) { store.windowVal = p.window; store.levelVal = p.level }
-}
-function onChange() { active.value = '' }
+const presets = computed(() => store.volumeData?.windowPresets || DEFAULT_WINDOW_PRESETS)
 </script>
 
 <style scoped>

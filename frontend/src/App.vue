@@ -29,12 +29,16 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import VolumeRenderer from './components/VolumeRenderer.vue'
 import MPRView from './components/MPRView.vue'
 import WindowControl from './components/WindowControl.vue'
 import ROIPanel from './components/ROIPanel.vue'
 import { useImagingStore } from './store/imaging'
 const store = useImagingStore()
+
+// 刷新页面或离开后重新进入：自动恢复上次部位与窗值
+onMounted(() => { if (store.savedSession && !store.volumeData) store.loadVolume() })
 </script>
 
 <style>
